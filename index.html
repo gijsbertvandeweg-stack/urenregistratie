@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urenregistratie 80 Uur - v2.0</title>
+    <title>Urenregistratie 80 Uur - v2.1</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -41,7 +42,9 @@
             font-size: 1em;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.2s;
         }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-success { background: #48bb78; color: white; margin-bottom: 10px; }
         .btn-danger { background: #f56565; color: white; }
         .btn-primary { background: #667eea; color: white; }
@@ -175,14 +178,14 @@
 
             <div class="card full-width" style="text-align:center;">
                 <h2>Exporteren</h2>
-                <button class="btn-primary" onclick="downloadCSV()">📥 Download CSV</button>
+                <button class="btn-primary" onclick="downloadExcel()">📊 Download Excel</button>
                 <button class="btn-secondary" onclick="clearAll()" style="margin-top:10px;">🗑️ Alles verwijderen</button>
             </div>
         </div>
     </div>
 
     <script>
-        let timer = 0, entries = [], sources = [];
+        let timer = 0, timerInterval = null, entries = [], sources = [];
         const GOAL = 80;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -192,20 +195,27 @@
         });
 
         function startTimer() {
+            console.log('Timer started');
             document.getElementById('startBtn').style.display = 'none';
             document.getElementById('stopBtn').style.display = 'block';
             timer = 0;
-            const interval = setInterval(() => {
+
+            timerInterval = setInterval(() => {
                 timer++;
-                const h = Math.floor(timer/3600), m = Math.floor((timer%3600)/60), s = timer%60;
-                document.getElementById('timer').textContent =
-                    String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+                const h = Math.floor(timer / 3600);
+                const m = Math.floor((timer % 3600) / 60);
+                const s = timer % 60;
+                const display = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                document.getElementById('timer').textContent = display;
             }, 1000);
-            window.currentInterval = interval;
         }
 
         function stopTimer() {
-            clearInterval(window.currentInterval);
+            console.log('Timer stopped at:', timer);
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             document.getElementById('startBtn').style.display = 'block';
             document.getElementById('stopBtn').style.display = 'none';
         }
@@ -217,16 +227,23 @@
             const hours = (timer / 3600).toFixed(2);
 
             if (!date) { msg('Voer datum in', 'error'); return; }
-            if (timer === 0) { msg('Start de timer', 'error'); return; }
+            if (timer === 0) { msg('Start de timer eerst', 'error'); return; }
 
-            entries.push({ date, hours: parseFloat(hours), websites, notes });
+            const entry = { date, hours: parseFloat(hours), websites, notes };
+            entries.push(entry);
             save();
-            render();
+
+            syncToSheets(entry);
+
             timer = 0;
             document.getElementById('timer').textContent = '00:00:00';
             document.getElementById('websites').value = '';
             document.getElementById('notes').value = '';
-            msg('Opgeslagen!', 'success');
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+
+            render();
+            msg('✅ ' + hours + ' uur opgeslagen!', 'success');
         }
 
         function deleteEntry(i) {
@@ -258,12 +275,11 @@
         }
 
         function render() {
-            // Entries
             let html = entries.length ? entries.map((e, i) => `
                 <div class="entry">
                     <div class="entry-info">
                         <div class="entry-date">${new Date(e.date).toLocaleDateString('nl-NL', {weekday:'short',year:'numeric',month:'short',day:'numeric'})}</div>
-                        <div class="entry-time">⏱️ ${e.hours} uur</div>
+                        <div class="entry-time">⏱️ ${parseFloat(e.hours).toFixed(2)} uur</div>
                         ${e.websites ? `<div>💻 ${e.websites}</div>` : ''}
                         ${e.notes ? `<div style="color:#718096;font-style:italic;">📝 ${e.notes}</div>` : ''}
                     </div>
@@ -272,7 +288,6 @@
             `).join('') : '<div class="empty">Geen entries</div>';
             document.getElementById('entries').innerHTML = html;
 
-            // Sources
             html = sources.length ? sources.map((s, i) => `
                 <div style="background:#edf2f7;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
                     <a href="${s.url}" target="_blank" style="color:#667eea;text-decoration:none;flex:1;">🔗 ${s.title}</a>
@@ -281,43 +296,100 @@
             `).join('') : '<div class="empty">Geen bronnen</div>';
             document.getElementById('sources').innerHTML = html;
 
-            // Goal
-            const total = entries.reduce((s, e) => s + parseFloat(e.hours), 0);
-            const remaining = Math.max(0, GOAL - total);
-            const pct = Math.min(100, Math.round((total / GOAL) * 100));
-            document.getElementById('spent').textContent = total.toFixed(1);
-            document.getElementById('remaining').textContent = remaining.toFixed(1);
-            document.getElementById('percent').textContent = pct + '%';
-            document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur';
-            document.getElementById('fill').style.width = pct + '%';
+            try {
+                let total = 0;
+                entries.forEach(e => {
+                    const hrs = parseFloat(e.hours) || 0;
+                    total += hrs;
+                });
+
+                const remaining = Math.max(0, GOAL - total);
+                const pct = total >= GOAL ? 100 : Math.round((total / GOAL) * 100);
+
+                document.getElementById('spent').textContent = total.toFixed(1);
+                document.getElementById('remaining').textContent = remaining.toFixed(1);
+                document.getElementById('percent').textContent = pct + '%';
+                document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur';
+                document.getElementById('fill').style.width = pct + '%';
+
+                console.log('Tracker updated:', {total, remaining, pct});
+            } catch(err) {
+                console.error('Render error:', err);
+            }
         }
 
-        function downloadCSV() {
-            if (!entries.length) { msg('Geen entries', 'error'); return; }
-            let csv = 'Datum,Uren,Websites,Aantekeningen\n';
-            entries.forEach(e => {
-                csv += `"${new Date(e.date).toLocaleDateString('nl-NL')}",${e.hours},"${e.websites}","${e.notes}"\n`;
-            });
+        function downloadExcel() {
+            if (!entries.length) { msg('Geen entries om te downloaden', 'error'); return; }
+
+            const data = entries.map(e => ({
+                'Datum': new Date(e.date).toLocaleDateString('nl-NL'),
+                'Uren': parseFloat(e.hours),
+                'Websites': e.websites || '',
+                'Aantekeningen': e.notes || ''
+            }));
+
             const total = entries.reduce((s, e) => s + parseFloat(e.hours), 0);
-            csv += `\nTotaal,${total.toFixed(2)},,\n`;
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `urenregistratie_${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            msg('Gedownload!', 'success');
+            data.push({
+                'Datum': '--- TOTAAL ---',
+                'Uren': total,
+                'Websites': '',
+                'Aantekeningen': ''
+            });
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            ws['!cols'] = [
+                {wch: 15},
+                {wch: 10},
+                {wch: 20},
+                {wch: 30}
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Urenregistratie");
+            XLSX.writeFile(wb, `urenregistratie_${new Date().toISOString().split('T')[0]}.xlsx`);
+            msg('✅ Excel gedownload!', 'success');
         }
 
         function clearAll() {
-            if (confirm('ALLES verwijderen?')) {
+            if (confirm('ALLES verwijderen? Dit kan niet ongedaan gemaakt worden!')) {
                 entries = [];
+                sources = [];
                 save();
                 render();
                 msg('Verwijderd', 'success');
             }
+        }
+
+        function syncToSheets(entry) {
+            const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzPtWUulJuitUDO1pKIIcrDThAPW2i1ZmKV-M7ywAYza5tkwB4EuOYmjnJKU0zBK8h2/exec';
+            fetch(SHEET_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'addEntry',
+                    date: entry.date,
+                    hours: entry.hours,
+                    websites: entry.websites,
+                    notes: entry.notes
+                })
+            }).catch(e => console.log('Sheet sync:', e.message));
+        }
+
+        function syncFromSheets() {
+            const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzPtWUulJuitUDO1pKIIcrDThAPW2i1ZmKV-M7ywAYza5tkwB4EuOYmjnJKU0zBK8h2/exec';
+            fetch(SHEET_URL + '?action=getEntries')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.entries && data.entries.length > 0) {
+                        entries = data.entries.map(e => ({
+                            date: e[0],
+                            hours: parseFloat(e[1]) || 0,
+                            websites: e[2] || '',
+                            notes: e[3] || ''
+                        }));
+                        render();
+                    }
+                })
+                .catch(e => console.log('Sheet fetch:', e.message));
         }
 
         function save() {
@@ -328,6 +400,7 @@
         function load() {
             entries = JSON.parse(localStorage.getItem('e') || '[]');
             sources = JSON.parse(localStorage.getItem('s') || '[]');
+            syncFromSheets();
         }
 
         function msg(text, type) {
