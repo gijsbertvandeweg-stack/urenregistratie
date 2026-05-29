@@ -40,13 +40,13 @@
 </head>
 <body>
     <div class="container">
-        <div class="header"><h1>‚è±Ô∏è Urenregistratie</h1><p>Werktijden bijhouden</p></div>
+        <div class="header"><h1>&#x23F1;&#xFE0F; Urenregistratie</h1><p>Werktijden bijhouden</p></div>
         <div class="content">
             <div class="card">
                 <h2>Start/Stop Timer</h2>
                 <div class="timer-display" id="timerDisplay">00:00:00</div>
-                <button class="btn-success" id="startBtn" onclick="window.startTimer()">‚ñ∂ Start</button>
-                <button class="btn-danger" id="stopBtn" style="display:none;" onclick="window.stopTimer()">‚èπ Stop</button>
+                <button class="btn-success" id="startBtn" onclick="window.startTimer()">&#x25B6; Start</button>
+                <button class="btn-danger" id="stopBtn" style="display:none;" onclick="window.stopTimer()">&#x23F9; Stop</button>
             </div>
             <div class="card">
                 <h2>Werkgegevens</h2>
@@ -59,7 +59,7 @@
                 <button class="btn-primary" onclick="window.addEntry()">Opslaan</button>
             </div>
             <div class="card">
-                <h2>üìö Bronnen</h2>
+                <h2>&#x1F4DA; Bronnen</h2>
                 <label>Titel</label>
                 <input type="text" id="sourceTitleInput" placeholder="Figma">
                 <label>URL</label>
@@ -70,7 +70,7 @@
             </div>
         </div>
         <div class="goal-box">
-            <h2>üéØ 80 Uur Doelstelling</h2>
+            <h2>&#x1F3AF; 80 Uur Doelstelling</h2>
             <div class="stats">
                 <div class="stat"><div class="stat-label">Besteed</div><div class="stat-value" id="spentValue">0.0</div><div class="stat-label">uur</div></div>
                 <div class="stat"><div class="stat-label">Nog te gaan</div><div class="stat-value" id="remainingValue">80.0</div><div class="stat-label">uur</div></div>
@@ -87,8 +87,8 @@
             </div>
             <div class="card full-width" style="text-align:center;">
                 <h2>Exporteren</h2>
-                <button class="btn-primary" onclick="window.downloadExcel()">üìä Download Excel</button>
-                <button class="btn-secondary" onclick="window.clearAll()">üóëÔ∏è Alles verwijderen</button>
+                <button class="btn-primary" onclick="window.downloadExcel()">&#x1F4CA; Download Excel</button>
+                <button class="btn-secondary" onclick="window.clearAll()">&#x1F5D1;&#xFE0F; Alles verwijderen</button>
             </div>
         </div>
     </div>
@@ -102,11 +102,11 @@
         window.startTimer = function() { timerValue = 0; document.getElementById('startBtn').style.display = 'none'; document.getElementById('stopBtn').style.display = 'block'; timerInterval = setInterval(function() { timerValue++; updateTimerDisplay(); }, 1000); };
         window.stopTimer = function() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } document.getElementById('startBtn').style.display = 'block'; document.getElementById('stopBtn').style.display = 'none'; };
         function updateTimerDisplay() { const h = Math.floor(timerValue / 3600); const m = Math.floor((timerValue % 3600) / 60); const s = timerValue % 60; document.getElementById('timerDisplay').textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
-        window.addEntry = function() { const date = document.getElementById('dateInput').value; const websites = document.getElementById('websitesInput').value; const notes = document.getElementById('notesInput').value; if (!date) { showMessage('Voer datum in', 'error'); return; } if (timerValue === 0) { showMessage('Start de timer eerst', 'error'); return; } const hours = parseFloat((timerValue / 3600).toFixed(2)); entries.push({ date, hours, websites, notes }); saveData(); updateUI(); timerValue = 0; document.getElementById('timerDisplay').textContent = '00:00:00'; document.getElementById('websitesInput').value = ''; document.getElementById('notesInput').value = ''; document.getElementById('startBtn').style.display = 'block'; document.getElementById('stopBtn').style.display = 'none'; showMessage('‚úÖ ' + hours + ' uur opgeslagen!', 'success'); };
+        window.addEntry = function() { const date = document.getElementById('dateInput').value; const websites = document.getElementById('websitesInput').value; const notes = document.getElementById('notesInput').value; if (!date) { showMessage('Voer datum in', 'error'); return; } if (timerValue === 0) { showMessage('Start de timer eerst', 'error'); return; } const hours = parseFloat((timerValue / 3600).toFixed(2)); entries.push({ date, hours, websites, notes }); saveData(); updateUI(); timerValue = 0; document.getElementById('timerDisplay').textContent = '00:00:00'; document.getElementById('websitesInput').value = ''; document.getElementById('notesInput').value = ''; document.getElementById('startBtn').style.display = 'block'; document.getElementById('stopBtn').style.display = 'none'; showMessage('\u2705 ' + hours + ' uur opgeslagen!', 'success'); };
         window.deleteEntry = function(index) { if (confirm('Verwijderen?')) { entries.splice(index, 1); saveData(); updateUI(); } };
         window.addSource = function() { const title = document.getElementById('sourceTitleInput').value; const url = document.getElementById('sourceUrlInput').value; if (!title || !url) { showMessage('Titel en URL nodig', 'error'); return; } sources.push({ title, url }); saveData(); updateUI(); document.getElementById('sourceTitleInput').value = ''; document.getElementById('sourceUrlInput').value = ''; showMessage('Opgeslagen!', 'success'); };
         window.deleteSource = function(index) { if (confirm('Verwijderen?')) { sources.splice(index, 1); saveData(); updateUI(); } };
-        function updateUI() { let html = entries.length ? entries.map((e, i) => '<div class="entry"><div class="entry-info"><div class="entry-date">' + new Date(e.date).toLocaleDateString('nl-NL', {weekday:'short',year:'numeric',month:'short',day:'numeric'}) + '</div><div class="entry-time">‚è±Ô∏è ' + e.hours + ' uur</div>' + (e.websites ? '<div>üíª ' + e.websites + '</div>' : '') + (e.notes ? '<div style="color:#718096;font-style:italic;">üìù ' + e.notes + '</div>' : '') + '</div><button class="btn-danger" style="width:80px; margin:0;" onclick="window.deleteEntry(' + i + ')">‚úï</button></div>').join('') : '<div class="empty">Geen entries</div>'; document.getElementById('entriesList').innerHTML = html; html = sources.length ? sources.map((s, i) => '<div style="background:#edf2f7;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;"><a href="' + s.url + '" target="_blank" style="color:#667eea;text-decoration:none;flex:1;">üîó ' + s.title + '</a><button class="btn-danger" style="width:50px;margin:0;" onclick="window.deleteSource(' + i + ')">‚úï</button></div>').join('') : '<div class="empty">Geen bronnen</div>'; document.getElementById('sourcesList').innerHTML = html; const total = entries.reduce((sum, e) => sum + e.hours, 0); const remaining = Math.max(0, GOAL - total); const percent = total >= GOAL ? 100 : Math.round((total / GOAL) * 100); document.getElementById('spentValue').textContent = total.toFixed(1); document.getElementById('remainingValue').textContent = remaining.toFixed(1); document.getElementById('percentValue').textContent = percent + '%'; document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur'; document.getElementById('progressFill').style.width = percent + '%'; }
+        function updateUI() { let html = entries.length ? entries.map((e, i) => '<div class="entry"><div class="entry-info"><div class="entry-date">' + new Date(e.date).toLocaleDateString('nl-NL', {weekday:'short',year:'numeric',month:'short',day:'numeric'}) + '</div><div class="entry-time">\u23F1\uFE0F ' + e.hours + ' uur</div>' + (e.websites ? '<div>\u{1F4BB} ' + e.websites + '</div>' : '') + (e.notes ? '<div style="color:#718096;font-style:italic;">\u{1F4DD} ' + e.notes + '</div>' : '') + '</div><button class="btn-danger" style="width:80px; margin:0;" onclick="window.deleteEntry(' + i + ')">\u2715</button></div>').join('') : '<div class="empty">Geen entries</div>'; document.getElementById('entriesList').innerHTML = html; html = sources.length ? sources.map((s, i) => '<div style="background:#edf2f7;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;"><a href="' + s.url + '" target="_blank" style="color:#667eea;text-decoration:none;flex:1;">\u{1F517} ' + s.title + '</a><button class="btn-danger" style="width:50px;margin:0;" onclick="window.deleteSource(' + i + ')">\u2715</button></div>').join('') : '<div class="empty">Geen bronnen</div>'; document.getElementById('sourcesList').innerHTML = html; const total = entries.reduce((sum, e) => sum + e.hours, 0); const remaining = Math.max(0, GOAL - total); const percent = total >= GOAL ? 100 : Math.round((total / GOAL) * 100); document.getElementById('spentValue').textContent = total.toFixed(1); document.getElementById('remainingValue').textContent = remaining.toFixed(1); document.getElementById('percentValue').textContent = percent + '%'; document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur'; document.getElementById('progressFill').style.width = percent + '%'; }
         function buildStyledSheet(headers, rows, widths, boldLastRow) {
             const aoa = [headers].concat(rows);
             const ws = XLSX.utils.aoa_to_sheet(aoa);
@@ -134,7 +134,7 @@
             }
             return ws;
         }
-        window.downloadExcel = function() { if (!entries.length) { showMessage('Geen entries om te downloaden', 'error'); return; } if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek nog niet geladen, probeer zo nog eens', 'error'); return; } const wb = XLSX.utils.book_new(); const total = entries.reduce((s, e) => s + e.hours, 0); const urenRows = entries.map(e => [new Date(e.date).toLocaleDateString('nl-NL'), e.hours, e.websites || '', e.notes || '']); urenRows.push(['TOTAAL', total, '', '']); const ws1 = buildStyledSheet(['Datum', 'Uren', 'Websites', 'Aantekeningen'], urenRows, [16, 10, 25, 40], true); XLSX.utils.book_append_sheet(wb, ws1, 'Urenregistratie'); const bronRows = sources.map(s => [s.title, s.url]); if (!bronRows.length) bronRows.push(['(geen bronnen)', '']); const ws2 = buildStyledSheet(['Titel', 'URL'], bronRows, [30, 55], false); XLSX.utils.book_append_sheet(wb, ws2, 'Bronnen'); XLSX.writeFile(wb, 'urenregistratie_' + new Date().toISOString().split('T')[0] + '.xlsx'); showMessage('‚úÖ Excel gedownload!', 'success'); };
+        window.downloadExcel = function() { if (!entries.length) { showMessage('Geen entries om te downloaden', 'error'); return; } if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek nog niet geladen, probeer zo nog eens', 'error'); return; } const wb = XLSX.utils.book_new(); const total = entries.reduce((s, e) => s + e.hours, 0); const urenRows = entries.map(e => [new Date(e.date).toLocaleDateString('nl-NL'), e.hours, e.websites || '', e.notes || '']); urenRows.push(['TOTAAL', total, '', '']); const ws1 = buildStyledSheet(['Datum', 'Uren', 'Websites', 'Aantekeningen'], urenRows, [16, 10, 25, 40], true); XLSX.utils.book_append_sheet(wb, ws1, 'Urenregistratie'); const bronRows = sources.map(s => [s.title, s.url]); if (!bronRows.length) bronRows.push(['(geen bronnen)', '']); const ws2 = buildStyledSheet(['Titel', 'URL'], bronRows, [30, 55], false); XLSX.utils.book_append_sheet(wb, ws2, 'Bronnen'); XLSX.writeFile(wb, 'urenregistratie_' + new Date().toISOString().split('T')[0] + '.xlsx'); showMessage('\u2705 Excel gedownload!', 'success'); };
         window.clearAll = function() { if (confirm('ALLES verwijderen?')) { entries = []; sources = []; saveData(); updateUI(); showMessage('Verwijderd', 'success'); } };
         function saveData() { localStorage.setItem('entries', JSON.stringify(entries)); localStorage.setItem('sources', JSON.stringify(sources)); }
         function loadData() { entries = JSON.parse(localStorage.getItem('entries') || '[]'); sources = JSON.parse(localStorage.getItem('sources') || '[]'); }
