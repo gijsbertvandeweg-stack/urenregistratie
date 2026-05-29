@@ -3,415 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urenregistratie 80 Uur - v2.1</title>
+    <title>Urenregistratie 80 Uur - v3.0</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 30px; }
         .header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-        }
+        .content { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         @media (max-width: 1024px) { .content { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 768px) { .content { grid-template-columns: 1fr; } }
-
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
+        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .card h2 { color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
-
         .timer-display { font-size: 3em; font-weight: bold; text-align: center; color: #667eea; margin: 20px 0; }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
-        .btn-success { background: #48bb78; color: white; margin-bottom: 10px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .btn-success { background: #48bb78; color: white; }
         .btn-danger { background: #f56565; color: white; }
         .btn-primary { background: #667eea; color: white; }
         .btn-secondary { background: #718096; color: white; }
-
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1em;
-        }
+        input, textarea { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 8px; }
         label { display: block; margin-bottom: 5px; color: #2d3748; font-weight: 600; }
-
         .full-width { grid-column: 1 / -1; }
-
-        .goal-box {
-            grid-column: 1 / -1;
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            margin: 20px 0;
-        }
-        .goal-box h2 { color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
-
+        .goal-box { grid-column: 1 / -1; background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin: 20px 0; }
         .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0; }
         .stat { text-align: center; padding: 20px; background: #f7fafc; border-radius: 8px; }
-        .stat-label { color: #718096; font-size: 0.9em; margin-bottom: 8px; }
+        .stat-label { color: #718096; font-size: 0.9em; }
         .stat-value { font-size: 2.5em; font-weight: bold; color: #667eea; }
-
         .progress-bar { width: 100%; height: 40px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin: 15px 0; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #48bb78, #38a169); width: 0%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .progress-text { text-align: center; color: #4a5568; font-weight: 600; }
-
-        .entry {
-            background: #f7fafc;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-        }
-        .entry-info { flex: 1; }
-        .entry-date { font-weight: bold; color: #2d3748; }
-        .entry-time { color: #667eea; font-size: 1.1em; font-weight: 600; margin: 5px 0; }
-
-        .empty { text-align: center; padding: 30px; color: #a0aec0; }
-
-        .message {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #48bb78, #38a169); width: 0%; }
+        .entry { background: #f7fafc; border-left: 4px solid #667eea; padding: 15px; margin: 15px 0; border-radius: 8px; display: flex; justify-content: space-between; }
+        .message { padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         .message.success { background: #c6f6d5; color: #22543d; }
         .message.error { background: #fed7d7; color: #742a2a; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>⏱️ Urenregistratie</h1>
-            <p>Werktijden bijhouden</p>
-        </div>
-
+        <div class="header"><h1>⏱️ Urenregistratie</h1><p>Werktijden bijhouden</p></div>
         <div class="content">
             <div class="card">
                 <h2>Start/Stop Timer</h2>
-                <div class="timer-display" id="timer">00:00:00</div>
-                <button class="btn-success" onclick="startTimer()" id="startBtn">▶ Start</button>
-                <button class="btn-danger" onclick="stopTimer()" id="stopBtn" style="display:none;">⏹ Stop</button>
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <button class="btn-success" id="startBtn" onclick="window.startTimer()">▶ Start</button>
+                <button class="btn-danger" id="stopBtn" style="display:none;" onclick="window.stopTimer()">⏹ Stop</button>
             </div>
-
             <div class="card">
                 <h2>Werkgegevens</h2>
                 <label>Datum</label>
-                <input type="date" id="date">
+                <input type="date" id="dateInput">
                 <label>Websites</label>
-                <input type="text" id="websites" placeholder="Figma, Notion...">
+                <input type="text" id="websitesInput" placeholder="Figma, Notion...">
                 <label>Aantekeningen</label>
-                <textarea id="notes" placeholder="Wat gedaan?"></textarea>
-                <button class="btn-primary" onclick="addEntry()">Opslaan</button>
+                <textarea id="notesInput" placeholder="Wat gedaan?"></textarea>
+                <button class="btn-primary" onclick="window.addEntry()">Opslaan</button>
             </div>
-
             <div class="card">
                 <h2>📚 Bronnen</h2>
                 <label>Titel</label>
-                <input type="text" id="sourceTitle" placeholder="Figma">
+                <input type="text" id="sourceTitleInput" placeholder="Figma">
                 <label>URL</label>
-                <input type="text" id="sourceUrl" placeholder="https://...">
-                <button class="btn-primary" onclick="addSource()">Opslaan</button>
+                <input type="text" id="sourceUrlInput" placeholder="https://...">
+                <button class="btn-primary" onclick="window.addSource()">Opslaan</button>
                 <hr style="margin:20px 0;border:none;border-top:1px solid #e2e8f0;">
-                <div id="sources"></div>
+                <div id="sourcesList"></div>
             </div>
         </div>
-
         <div class="goal-box">
             <h2>🎯 80 Uur Doelstelling</h2>
             <div class="stats">
-                <div class="stat">
-                    <div class="stat-label">Besteed</div>
-                    <div class="stat-value" id="spent">0</div>
-                    <div class="stat-label">uur</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Nog te gaan</div>
-                    <div class="stat-value" id="remaining">80</div>
-                    <div class="stat-label">uur</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Voortgang</div>
-                    <div class="stat-value" id="percent">0%</div>
-                    <div class="stat-label">voltooid</div>
-                </div>
+                <div class="stat"><div class="stat-label">Besteed</div><div class="stat-value" id="spentValue">0.0</div><div class="stat-label">uur</div></div>
+                <div class="stat"><div class="stat-label">Nog te gaan</div><div class="stat-value" id="remainingValue">80.0</div><div class="stat-label">uur</div></div>
+                <div class="stat"><div class="stat-label">Voortgang</div><div class="stat-value" id="percentValue">0%</div><div class="stat-label">voltooid</div></div>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="fill"></div>
-            </div>
-            <div class="progress-text" id="progressText">0 / 80 uur</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text" id="progressText">0.0 / 80 uur</div>
         </div>
-
         <div class="content" style="margin-top:20px;">
             <div class="card full-width">
                 <h2>Opgeslagen Entries</h2>
-                <div id="messages"></div>
-                <div id="entries"></div>
+                <div id="messageBox"></div>
+                <div id="entriesList"></div>
             </div>
-
             <div class="card full-width" style="text-align:center;">
                 <h2>Exporteren</h2>
-                <button class="btn-primary" onclick="downloadExcel()">📊 Download Excel</button>
-                <button class="btn-secondary" onclick="clearAll()" style="margin-top:10px;">🗑️ Alles verwijderen</button>
+                <button class="btn-primary" onclick="window.downloadExcel()">📊 Download Excel</button>
+                <button class="btn-secondary" onclick="window.clearAll()">🗑️ Alles verwijderen</button>
             </div>
         </div>
     </div>
-
     <script>
-        let timer = 0, timerInterval = null, entries = [], sources = [];
+        let timerValue = 0;
+        let timerInterval = null;
+        let entries = [];
+        let sources = [];
         const GOAL = 80;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('date').valueAsDate = new Date();
-            load();
-            render();
-        });
-
-        function startTimer() {
-            console.log('Timer started');
-            document.getElementById('startBtn').style.display = 'none';
-            document.getElementById('stopBtn').style.display = 'block';
-            timer = 0;
-
-            timerInterval = setInterval(() => {
-                timer++;
-                const h = Math.floor(timer / 3600);
-                const m = Math.floor((timer % 3600) / 60);
-                const s = timer % 60;
-                const display = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                document.getElementById('timer').textContent = display;
-            }, 1000);
-        }
-
-        function stopTimer() {
-            console.log('Timer stopped at:', timer);
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-            document.getElementById('startBtn').style.display = 'block';
-            document.getElementById('stopBtn').style.display = 'none';
-        }
-
-        function addEntry() {
-            const date = document.getElementById('date').value;
-            const websites = document.getElementById('websites').value;
-            const notes = document.getElementById('notes').value;
-            const hours = (timer / 3600).toFixed(2);
-
-            if (!date) { msg('Voer datum in', 'error'); return; }
-            if (timer === 0) { msg('Start de timer eerst', 'error'); return; }
-
-            const entry = { date, hours: parseFloat(hours), websites, notes };
-            entries.push(entry);
-            save();
-
-            syncToSheets(entry);
-
-            timer = 0;
-            document.getElementById('timer').textContent = '00:00:00';
-            document.getElementById('websites').value = '';
-            document.getElementById('notes').value = '';
-            document.getElementById('startBtn').style.display = 'block';
-            document.getElementById('stopBtn').style.display = 'none';
-
-            render();
-            msg('✅ ' + hours + ' uur opgeslagen!', 'success');
-        }
-
-        function deleteEntry(i) {
-            if (confirm('Verwijderen?')) {
-                entries.splice(i, 1);
-                save();
-                render();
-            }
-        }
-
-        function addSource() {
-            const title = document.getElementById('sourceTitle').value;
-            const url = document.getElementById('sourceUrl').value;
-            if (!title || !url) { msg('Titel en URL nodig', 'error'); return; }
-            sources.push({ title, url });
-            save();
-            render();
-            document.getElementById('sourceTitle').value = '';
-            document.getElementById('sourceUrl').value = '';
-            msg('Opgeslagen!', 'success');
-        }
-
-        function deleteSource(i) {
-            if (confirm('Verwijderen?')) {
-                sources.splice(i, 1);
-                save();
-                render();
-            }
-        }
-
-        function render() {
-            let html = entries.length ? entries.map((e, i) => `
-                <div class="entry">
-                    <div class="entry-info">
-                        <div class="entry-date">${new Date(e.date).toLocaleDateString('nl-NL', {weekday:'short',year:'numeric',month:'short',day:'numeric'})}</div>
-                        <div class="entry-time">⏱️ ${parseFloat(e.hours).toFixed(2)} uur</div>
-                        ${e.websites ? `<div>💻 ${e.websites}</div>` : ''}
-                        ${e.notes ? `<div style="color:#718096;font-style:italic;">📝 ${e.notes}</div>` : ''}
-                    </div>
-                    <button class="btn-danger" style="width:80px;" onclick="deleteEntry(${i})">✕</button>
-                </div>
-            `).join('') : '<div class="empty">Geen entries</div>';
-            document.getElementById('entries').innerHTML = html;
-
-            html = sources.length ? sources.map((s, i) => `
-                <div style="background:#edf2f7;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
-                    <a href="${s.url}" target="_blank" style="color:#667eea;text-decoration:none;flex:1;">🔗 ${s.title}</a>
-                    <button class="btn-danger" style="width:50px;" onclick="deleteSource(${i})">✕</button>
-                </div>
-            `).join('') : '<div class="empty">Geen bronnen</div>';
-            document.getElementById('sources').innerHTML = html;
-
-            try {
-                let total = 0;
-                entries.forEach(e => {
-                    const hrs = parseFloat(e.hours) || 0;
-                    total += hrs;
-                });
-
-                const remaining = Math.max(0, GOAL - total);
-                const pct = total >= GOAL ? 100 : Math.round((total / GOAL) * 100);
-
-                document.getElementById('spent').textContent = total.toFixed(1);
-                document.getElementById('remaining').textContent = remaining.toFixed(1);
-                document.getElementById('percent').textContent = pct + '%';
-                document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur';
-                document.getElementById('fill').style.width = pct + '%';
-
-                console.log('Tracker updated:', {total, remaining, pct});
-            } catch(err) {
-                console.error('Render error:', err);
-            }
-        }
-
-        function downloadExcel() {
-            if (!entries.length) { msg('Geen entries om te downloaden', 'error'); return; }
-
-            const data = entries.map(e => ({
-                'Datum': new Date(e.date).toLocaleDateString('nl-NL'),
-                'Uren': parseFloat(e.hours),
-                'Websites': e.websites || '',
-                'Aantekeningen': e.notes || ''
-            }));
-
-            const total = entries.reduce((s, e) => s + parseFloat(e.hours), 0);
-            data.push({
-                'Datum': '--- TOTAAL ---',
-                'Uren': total,
-                'Websites': '',
-                'Aantekeningen': ''
-            });
-
-            const ws = XLSX.utils.json_to_sheet(data);
-            ws['!cols'] = [
-                {wch: 15},
-                {wch: 10},
-                {wch: 20},
-                {wch: 30}
-            ];
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Urenregistratie");
-            XLSX.writeFile(wb, `urenregistratie_${new Date().toISOString().split('T')[0]}.xlsx`);
-            msg('✅ Excel gedownload!', 'success');
-        }
-
-        function clearAll() {
-            if (confirm('ALLES verwijderen? Dit kan niet ongedaan gemaakt worden!')) {
-                entries = [];
-                sources = [];
-                save();
-                render();
-                msg('Verwijderd', 'success');
-            }
-        }
-
-        function syncToSheets(entry) {
-            const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzPtWUulJuitUDO1pKIIcrDThAPW2i1ZmKV-M7ywAYza5tkwB4EuOYmjnJKU0zBK8h2/exec';
-            fetch(SHEET_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'addEntry',
-                    date: entry.date,
-                    hours: entry.hours,
-                    websites: entry.websites,
-                    notes: entry.notes
-                })
-            }).catch(e => console.log('Sheet sync:', e.message));
-        }
-
-        function syncFromSheets() {
-            const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzPtWUulJuitUDO1pKIIcrDThAPW2i1ZmKV-M7ywAYza5tkwB4EuOYmjnJKU0zBK8h2/exec';
-            fetch(SHEET_URL + '?action=getEntries')
-                .then(r => r.json())
-                .then(data => {
-                    if (data && data.entries && data.entries.length > 0) {
-                        entries = data.entries.map(e => ({
-                            date: e[0],
-                            hours: parseFloat(e[1]) || 0,
-                            websites: e[2] || '',
-                            notes: e[3] || ''
-                        }));
-                        render();
-                    }
-                })
-                .catch(e => console.log('Sheet fetch:', e.message));
-        }
-
-        function save() {
-            localStorage.setItem('e', JSON.stringify(entries));
-            localStorage.setItem('s', JSON.stringify(sources));
-        }
-
-        function load() {
-            entries = JSON.parse(localStorage.getItem('e') || '[]');
-            sources = JSON.parse(localStorage.getItem('s') || '[]');
-            syncFromSheets();
-        }
-
-        function msg(text, type) {
-            const c = document.getElementById('messages');
-            const m = document.createElement('div');
-            m.className = `message ${type}`;
-            m.textContent = text;
-            c.innerHTML = '';
-            c.appendChild(m);
-            setTimeout(() => m.remove(), 3000);
-        }
+        window.addEventListener('load', function() { document.getElementById('dateInput').valueAsDate = new Date(); loadData(); updateUI(); });
+        window.startTimer = function() { timerValue = 0; document.getElementById('startBtn').style.display = 'none'; document.getElementById('stopBtn').style.display = 'block'; timerInterval = setInterval(function() { timerValue++; updateTimerDisplay(); }, 1000); };
+        window.stopTimer = function() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } document.getElementById('startBtn').style.display = 'block'; document.getElementById('stopBtn').style.display = 'none'; };
+        function updateTimerDisplay() { const h = Math.floor(timerValue / 3600); const m = Math.floor((timerValue % 3600) / 60); const s = timerValue % 60; document.getElementById('timerDisplay').textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
+        window.addEntry = function() { const date = document.getElementById('dateInput').value; const websites = document.getElementById('websitesInput').value; const notes = document.getElementById('notesInput').value; if (!date) { showMessage('Voer datum in', 'error'); return; } if (timerValue === 0) { showMessage('Start de timer eerst', 'error'); return; } const hours = parseFloat((timerValue / 3600).toFixed(2)); entries.push({ date, hours, websites, notes }); saveData(); updateUI(); timerValue = 0; document.getElementById('timerDisplay').textContent = '00:00:00'; document.getElementById('websitesInput').value = ''; document.getElementById('notesInput').value = ''; document.getElementById('startBtn').style.display = 'block'; document.getElementById('stopBtn').style.display = 'none'; showMessage('✅ ' + hours + ' uur opgeslagen!', 'success'); };
+        window.deleteEntry = function(index) { if (confirm('Verwijderen?')) { entries.splice(index, 1); saveData(); updateUI(); } };
+        window.addSource = function() { const title = document.getElementById('sourceTitleInput').value; const url = document.getElementById('sourceUrlInput').value; if (!title || !url) { showMessage('Titel en URL nodig', 'error'); return; } sources.push({ title, url }); saveData(); updateUI(); document.getElementById('sourceTitleInput').value = ''; document.getElementById('sourceUrlInput').value = ''; showMessage('Opgeslagen!', 'success'); };
+        window.deleteSource = function(index) { if (confirm('Verwijderen?')) { sources.splice(index, 1); saveData(); updateUI(); } };
+        function updateUI() { let html = entries.length ? entries.map((e, i) => '<div class="entry"><div class="entry-info"><div class="entry-date">' + new Date(e.date).toLocaleDateString('nl-NL', {weekday:'short',year:'numeric',month:'short',day:'numeric'}) + '</div><div class="entry-time">⏱️ ' + e.hours + ' uur</div>' + (e.websites ? '<div>💻 ' + e.websites + '</div>' : '') + (e.notes ? '<div style="color:#718096;font-style:italic;">📝 ' + e.notes + '</div>' : '') + '</div><button class="btn-danger" style="width:80px; margin:0;" onclick="window.deleteEntry(' + i + ')">✕</button></div>').join('') : '<div class="empty">Geen entries</div>'; document.getElementById('entriesList').innerHTML = html; html = sources.length ? sources.map((s, i) => '<div style="background:#edf2f7;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;"><a href="' + s.url + '" target="_blank" style="color:#667eea;text-decoration:none;flex:1;">🔗 ' + s.title + '</a><button class="btn-danger" style="width:50px;margin:0;" onclick="window.deleteSource(' + i + ')">✕</button></div>').join('') : '<div class="empty">Geen bronnen</div>'; document.getElementById('sourcesList').innerHTML = html; const total = entries.reduce((sum, e) => sum + e.hours, 0); const remaining = Math.max(0, GOAL - total); const percent = total >= GOAL ? 100 : Math.round((total / GOAL) * 100); document.getElementById('spentValue').textContent = total.toFixed(1); document.getElementById('remainingValue').textContent = remaining.toFixed(1); document.getElementById('percentValue').textContent = percent + '%'; document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur'; document.getElementById('progressFill').style.width = percent + '%'; }
+        window.downloadExcel = function() { if (!entries.length) { showMessage('Geen entries om te downloaden', 'error'); return; } const data = entries.map(e => ({'Datum': new Date(e.date).toLocaleDateString('nl-NL'), 'Uren': e.hours, 'Websites': e.websites || '', 'Aantekeningen': e.notes || ''})); const total = entries.reduce((s, e) => s + e.hours, 0); data.push({'Datum': '--- TOTAAL ---', 'Uren': total, 'Websites': '', 'Aantekeningen': ''}); const ws = XLSX.utils.json_to_sheet(data); ws['!cols'] = [{wch: 15}, {wch: 10}, {wch: 20}, {wch: 30}]; const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Urenregistratie"); XLSX.writeFile(wb, 'urenregistratie_' + new Date().toISOString().split('T')[0] + '.xlsx'); showMessage('✅ Excel gedownload!', 'success'); };
+        window.clearAll = function() { if (confirm('ALLES verwijderen?')) { entries = []; sources = []; saveData(); updateUI(); showMessage('Verwijderd', 'success'); } };
+        function saveData() { localStorage.setItem('entries', JSON.stringify(entries)); localStorage.setItem('sources', JSON.stringify(sources)); }
+        function loadData() { entries = JSON.parse(localStorage.getItem('entries') || '[]'); sources = JSON.parse(localStorage.getItem('sources') || '[]'); }
+        function showMessage(text, type) { const box = document.getElementById('messageBox'); const msg = document.createElement('div'); msg.className = 'message ' + type; msg.textContent = text; box.innerHTML = ''; box.appendChild(msg); setTimeout(() => msg.remove(), 3000); }
     </script>
 </body>
 </html>
