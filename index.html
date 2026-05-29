@@ -3,790 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urenregistratie Tool</title>
+    <title>Urenregistratie 80 Uur - v2.0</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
         .content {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
-            margin-bottom: 30px;
         }
-
-        @media (max-width: 1024px) {
-            .content {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .source-item {
-            background: #edf2f7;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            word-break: break-word;
-        }
-
-        .source-item a {
-            color: #667eea;
-            text-decoration: none;
-            flex: 1;
-            font-size: 0.9em;
-        }
-
-        .source-item a:hover {
-            text-decoration: underline;
-        }
-
-        .source-item button {
-            padding: 4px 8px;
-            font-size: 0.8em;
-            margin-left: 10px;
-            flex: none;
-        }
+        @media (max-width: 1024px) { .content { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .content { grid-template-columns: 1fr; } }
 
         .card {
             background: white;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
+        .card h2 { color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
 
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .timer-display {
-            font-size: 3em;
-            font-weight: bold;
-            text-align: center;
-            color: #667eea;
-            margin: 20px 0;
-            font-family: 'Courier New', monospace;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+        .timer-display { font-size: 3em; font-weight: bold; text-align: center; color: #667eea; margin: 20px 0; }
 
         button {
-            flex: 1;
+            width: 100%;
             padding: 12px;
             border: none;
             border-radius: 8px;
             font-size: 1em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
+        .btn-success { background: #48bb78; color: white; margin-bottom: 10px; }
+        .btn-danger { background: #f56565; color: white; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-secondary { background: #718096; color: white; }
 
-        .btn-primary {
-            background-color: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background-color: #48bb78;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background-color: #38a169;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(72, 187, 120, 0.4);
-        }
-
-        .btn-danger {
-            background-color: #f56565;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #e53e3e;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(245, 101, 101, 0.4);
-        }
-
-        .btn-secondary {
-            background-color: #718096;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #4a5568;
-            transform: translateY(-2px);
-        }
-
-        input[type="text"],
-        input[type="date"],
-        input[type="time"],
-        textarea {
+        input, textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 12px;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             font-size: 1em;
-            font-family: inherit;
         }
+        label { display: block; margin-bottom: 5px; color: #2d3748; font-weight: 600; }
 
-        input[type="text"]:focus,
-        input[type="date"]:focus,
-        input[type="time"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
+        .full-width { grid-column: 1 / -1; }
 
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #2d3748;
-            font-weight: 600;
-        }
-
-        .entries-section {
+        .goal-box {
             grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin: 20px 0;
         }
+        .goal-box h2 { color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0; }
+        .stat { text-align: center; padding: 20px; background: #f7fafc; border-radius: 8px; }
+        .stat-label { color: #718096; font-size: 0.9em; margin-bottom: 8px; }
+        .stat-value { font-size: 2.5em; font-weight: bold; color: #667eea; }
+
+        .progress-bar { width: 100%; height: 40px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin: 15px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #48bb78, #38a169); width: 0%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .progress-text { text-align: center; color: #4a5568; font-weight: 600; }
 
         .entry {
             background: #f7fafc;
             border-left: 4px solid #667eea;
             padding: 15px;
-            margin-bottom: 15px;
+            margin: 15px 0;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: start;
         }
+        .entry-info { flex: 1; }
+        .entry-date { font-weight: bold; color: #2d3748; }
+        .entry-time { color: #667eea; font-size: 1.1em; font-weight: 600; margin: 5px 0; }
 
-        .entry-content {
-            flex: 1;
-        }
-
-        .entry-date {
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 5px;
-        }
-
-        .entry-time {
-            color: #667eea;
-            font-size: 1.1em;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .entry-websites {
-            color: #4a5568;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-
-        .entry-notes {
-            color: #718096;
-            font-size: 0.9em;
-            font-style: italic;
-        }
-
-        .entry-buttons {
-            display: flex;
-            gap: 8px;
-            margin-left: 10px;
-        }
-
-        .entry-buttons button {
-            padding: 6px 12px;
-            font-size: 0.85em;
-            flex: none;
-        }
-
-        .export-section {
-            grid-column: 1 / -1;
-            text-align: center;
-        }
-
-        .export-section button {
-            padding: 15px 40px;
-            font-size: 1.1em;
-            max-width: 300px;
-            margin: 0 auto;
-        }
+        .empty { text-align: center; padding: 30px; color: #a0aec0; }
 
         .message {
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
-            animation: slideIn 0.3s ease;
         }
-
-        .message.success {
-            background-color: #c6f6d5;
-            color: #22543d;
-            border-left: 4px solid #48bb78;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 30px;
-            color: #a0aec0;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            margin-bottom: 8px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .modal-buttons button {
-            flex: 1;
-        }
+        .message.success { background: #c6f6d5; color: #22543d; }
+        .message.error { background: #fed7d7; color: #742a2a; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>⏱️ Urenregistratie Tool</h1>
-            <p>Houd je werktijden eenvoudig bij</p>
+            <h1>⏱️ Urenregistratie</h1>
+            <p>Werktijden bijhouden</p>
         </div>
 
         <div class="content">
-            <!-- Timer Card -->
             <div class="card">
                 <h2>Start/Stop Timer</h2>
-                <div class="timer-display" id="timerDisplay">00:00:00</div>
-                <div class="button-group">
-                    <button class="btn-success" onclick="startTimer()" id="startBtn">Start</button>
-                    <button class="btn-danger" onclick="stopTimer()" id="stopBtn" style="display: none;">Stop</button>
-                </div>
-                <input type="hidden" id="startTime">
-                <input type="hidden" id="stopTime">
-                <input type="hidden" id="timerInterval">
+                <div class="timer-display" id="timer">00:00:00</div>
+                <button class="btn-success" onclick="startTimer()" id="startBtn">▶ Start</button>
+                <button class="btn-danger" onclick="stopTimer()" id="stopBtn" style="display:none;">⏹ Stop</button>
             </div>
 
-            <!-- Form Card -->
             <div class="card">
                 <h2>Werkgegevens</h2>
-
-                <div class="form-group">
-                    <label>Datum</label>
-                    <input type="date" id="entryDate" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Websites die je hebt gebruikt</label>
-                    <input type="text" id="websites" placeholder="bijv: Chrome, Figma, Notion, ...">
-                </div>
-
-                <div class="form-group">
-                    <label>Aantekeningen</label>
-                    <textarea id="notes" placeholder="Wat heb je gedaan? Bijzonderheden?"></textarea>
-                </div>
-
-                <button class="btn-primary" onclick="addEntry()">Entry Opslaan</button>
-            </div>
-
-            <!-- Bronnenlijst Card -->
-            <div class="card">
-                <h2>📚 Bronnenlijst</h2>
-
-                <div class="form-group">
-                    <label>Bron Titel</label>
-                    <input type="text" id="sourceTitle" placeholder="bijv: Figma Dashboard">
-                </div>
-
-                <div class="form-group">
-                    <label>URL / Link</label>
-                    <input type="text" id="sourceUrl" placeholder="bijv: https://figma.com/...">
-                </div>
-
-                <button class="btn-primary" onclick="addSource()">Opslaan</button>
-
-                <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
-
-                <div id="sourcesList"></div>
-            </div>
-
-            <!-- Entries List -->
-            <div class="card entries-section">
-                <h2>Opgeslagen Entries</h2>
-                <div id="messageContainer"></div>
-                <div id="entriesList"></div>
-            </div>
-
-            <!-- Export Section -->
-            <div class="card export-section">
-                <h2>Gegevens Exporteren</h2>
-                <p style="color: #718096; margin-bottom: 20px;">Download alle entries in Excel format</p>
-                <button class="btn-primary" onclick="exportToExcel()">📥 Download Excel</button>
-                <button class="btn-secondary" onclick="clearAllEntries()" style="margin-top: 10px;">🗑️ Alles Verwijderen</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <h3>Entry Bewerken</h3>
-            <div class="form-group">
-                <label>Start Tijd</label>
-                <input type="time" id="editStartTime">
-            </div>
-            <div class="form-group">
-                <label>Stop Tijd</label>
-                <input type="time" id="editStopTime">
-            </div>
-            <div class="form-group">
-                <label>Uren (manueel)</label>
-                <input type="number" id="editHours" step="0.25" placeholder="bijv: 2.5">
-            </div>
-            <div class="form-group">
+                <label>Datum</label>
+                <input type="date" id="date">
                 <label>Websites</label>
-                <input type="text" id="editWebsites">
-            </div>
-            <div class="form-group">
+                <input type="text" id="websites" placeholder="Figma, Notion...">
                 <label>Aantekeningen</label>
-                <textarea id="editNotes"></textarea>
+                <textarea id="notes" placeholder="Wat gedaan?"></textarea>
+                <button class="btn-primary" onclick="addEntry()">Opslaan</button>
             </div>
-            <div class="modal-buttons">
-                <button class="btn-primary" onclick="saveEdit()">Opslaan</button>
-                <button class="btn-secondary" onclick="closeEditModal()">Annuleren</button>
+
+            <div class="card">
+                <h2>📚 Bronnen</h2>
+                <label>Titel</label>
+                <input type="text" id="sourceTitle" placeholder="Figma">
+                <label>URL</label>
+                <input type="text" id="sourceUrl" placeholder="https://...">
+                <button class="btn-primary" onclick="addSource()">Opslaan</button>
+                <hr style="margin:20px 0;border:none;border-top:1px solid #e2e8f0;">
+                <div id="sources"></div>
+            </div>
+        </div>
+
+        <div class="goal-box">
+            <h2>🎯 80 Uur Doelstelling</h2>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Besteed</div>
+                    <div class="stat-value" id="spent">0</div>
+                    <div class="stat-label">uur</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Nog te gaan</div>
+                    <div class="stat-value" id="remaining">80</div>
+                    <div class="stat-label">uur</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Voortgang</div>
+                    <div class="stat-value" id="percent">0%</div>
+                    <div class="stat-label">voltooid</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="fill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0 / 80 uur</div>
+        </div>
+
+        <div class="content" style="margin-top:20px;">
+            <div class="card full-width">
+                <h2>Opgeslagen Entries</h2>
+                <div id="messages"></div>
+                <div id="entries"></div>
+            </div>
+
+            <div class="card full-width" style="text-align:center;">
+                <h2>Exporteren</h2>
+                <button class="btn-primary" onclick="downloadCSV()">📥 Download CSV</button>
+                <button class="btn-secondary" onclick="clearAll()" style="margin-top:10px;">🗑️ Alles verwijderen</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <script>
-        let timerInterval = null;
-        let elapsedSeconds = 0;
-        let entries = [];
-        let sources = [];
-        let currentEditIndex = -1;
+        let timer = 0, entries = [], sources = [];
+        const GOAL = 80;
 
-        // Initialize
-        window.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('entryDate').valueAsDate = new Date();
-            loadEntries();
-            loadSources();
-            renderEntries();
-            renderSources();
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('date').valueAsDate = new Date();
+            load();
+            render();
         });
 
         function startTimer() {
             document.getElementById('startBtn').style.display = 'none';
             document.getElementById('stopBtn').style.display = 'block';
-            elapsedSeconds = 0;
-
-            const startTime = new Date();
-            timerInterval = setInterval(() => {
-                elapsedSeconds++;
-                updateTimerDisplay();
+            timer = 0;
+            const interval = setInterval(() => {
+                timer++;
+                const h = Math.floor(timer/3600), m = Math.floor((timer%3600)/60), s = timer%60;
+                document.getElementById('timer').textContent =
+                    String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
             }, 1000);
+            window.currentInterval = interval;
         }
 
         function stopTimer() {
-            clearInterval(timerInterval);
+            clearInterval(window.currentInterval);
             document.getElementById('startBtn').style.display = 'block';
             document.getElementById('stopBtn').style.display = 'none';
         }
 
-        function updateTimerDisplay() {
-            const hours = Math.floor(elapsedSeconds / 3600);
-            const minutes = Math.floor((elapsedSeconds % 3600) / 60);
-            const seconds = elapsedSeconds % 60;
-
-            const display =
-                String(hours).padStart(2, '0') + ':' +
-                String(minutes).padStart(2, '0') + ':' +
-                String(seconds).padStart(2, '0');
-
-            document.getElementById('timerDisplay').textContent = display;
-        }
-
         function addEntry() {
-            const date = document.getElementById('entryDate').value;
+            const date = document.getElementById('date').value;
             const websites = document.getElementById('websites').value;
             const notes = document.getElementById('notes').value;
-            const hours = (elapsedSeconds / 3600).toFixed(2);
+            const hours = (timer / 3600).toFixed(2);
 
-            if (!date) {
-                showMessage('Voer alstublieft een datum in', 'error');
-                return;
-            }
+            if (!date) { msg('Voer datum in', 'error'); return; }
+            if (timer === 0) { msg('Start de timer', 'error'); return; }
 
-            if (elapsedSeconds === 0) {
-                showMessage('Start eerst de timer', 'error');
-                return;
-            }
-
-            const entry = {
-                id: Date.now(),
-                date: date,
-                hours: hours,
-                websites: websites,
-                notes: notes,
-                timestamp: new Date()
-            };
-
-            entries.push(entry);
-            saveEntries();
-            renderEntries();
-
-            // Reset form
-            elapsedSeconds = 0;
-            document.getElementById('timerDisplay').textContent = '00:00:00';
+            entries.push({ date, hours: parseFloat(hours), websites, notes });
+            save();
+            render();
+            timer = 0;
+            document.getElementById('timer').textContent = '00:00:00';
             document.getElementById('websites').value = '';
             document.getElementById('notes').value = '';
-
-            showMessage('Entry succesvol opgeslagen!', 'success');
+            msg('Opgeslagen!', 'success');
         }
 
-        function renderEntries() {
-            const entriesList = document.getElementById('entriesList');
-
-            if (entries.length === 0) {
-                entriesList.innerHTML = '<div class="empty-state">Geen entries yet. Start je eerste timer! 🚀</div>';
-                return;
+        function deleteEntry(i) {
+            if (confirm('Verwijderen?')) {
+                entries.splice(i, 1);
+                save();
+                render();
             }
-
-            entriesList.innerHTML = entries.map((entry, index) => `
-                <div class="entry">
-                    <div class="entry-content">
-                        <div class="entry-date">${formatDate(entry.date)}</div>
-                        <div class="entry-time">⏱️ ${entry.hours} uur</div>
-                        ${entry.websites ? `<div class="entry-websites">💻 Websites: ${entry.websites}</div>` : ''}
-                        ${entry.notes ? `<div class="entry-notes">📝 ${entry.notes}</div>` : ''}
-                    </div>
-                    <div class="entry-buttons">
-                        <button class="btn-secondary" onclick="editEntry(${index})">✏️ Bewerk</button>
-                        <button class="btn-danger" onclick="deleteEntry(${index})">🗑️ Verwijder</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function editEntry(index) {
-            currentEditIndex = index;
-            const entry = entries[index];
-
-            document.getElementById('editStartTime').value = '09:00';
-            document.getElementById('editStopTime').value = '17:00';
-            document.getElementById('editHours').value = entry.hours;
-            document.getElementById('editWebsites').value = entry.websites;
-            document.getElementById('editNotes').value = entry.notes;
-
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-            currentEditIndex = -1;
-        }
-
-        function saveEdit() {
-            if (currentEditIndex === -1) return;
-
-            const hours = parseFloat(document.getElementById('editHours').value);
-
-            if (isNaN(hours) || hours <= 0) {
-                showMessage('Voer een geldig aantal uren in', 'error');
-                return;
-            }
-
-            entries[currentEditIndex].hours = hours.toFixed(2);
-            entries[currentEditIndex].websites = document.getElementById('editWebsites').value;
-            entries[currentEditIndex].notes = document.getElementById('editNotes').value;
-
-            saveEntries();
-            renderEntries();
-            closeEditModal();
-            showMessage('Entry bijgewerkt!', 'success');
-        }
-
-        function deleteEntry(index) {
-            if (confirm('Weet je zeker dat je deze entry wilt verwijderen?')) {
-                entries.splice(index, 1);
-                saveEntries();
-                renderEntries();
-                showMessage('Entry verwijderd', 'success');
-            }
-        }
-
-        function saveEntries() {
-            localStorage.setItem('urenEntries', JSON.stringify(entries));
-        }
-
-        function loadEntries() {
-            const saved = localStorage.getItem('urenEntries');
-            entries = saved ? JSON.parse(saved) : [];
         }
 
         function addSource() {
             const title = document.getElementById('sourceTitle').value;
             const url = document.getElementById('sourceUrl').value;
-
-            if (!title || !url) {
-                showMessage('Vul alstublieft titel en URL in', 'error');
-                return;
-            }
-
-            const source = {
-                id: Date.now(),
-                title: title,
-                url: url
-            };
-
-            sources.push(source);
-            saveSources();
-            renderSources();
-
-            // Reset form
+            if (!title || !url) { msg('Titel en URL nodig', 'error'); return; }
+            sources.push({ title, url });
+            save();
+            render();
             document.getElementById('sourceTitle').value = '';
             document.getElementById('sourceUrl').value = '';
-
-            showMessage('Bron opgeslagen!', 'success');
+            msg('Opgeslagen!', 'success');
         }
 
-        function deleteSource(index) {
-            if (confirm('Weet je zeker dat je deze bron wilt verwijderen?')) {
-                sources.splice(index, 1);
-                saveSources();
-                renderSources();
-                showMessage('Bron verwijderd', 'success');
+        function deleteSource(i) {
+            if (confirm('Verwijderen?')) {
+                sources.splice(i, 1);
+                save();
+                render();
             }
         }
 
-        function renderSources() {
-            const sourcesList = document.getElementById('sourcesList');
-
-            if (sources.length === 0) {
-                sourcesList.innerHTML = '<div class="empty-state">Geen bronnen opgeslagen</div>';
-                return;
-            }
-
-            sourcesList.innerHTML = sources.map((source, index) => `
-                <div class="source-item">
-                    <a href="${source.url}" target="_blank" title="${source.url}">
-                        🔗 ${source.title}
-                    </a>
-                    <button class="btn-danger" onclick="deleteSource(${index})">✕</button>
+        function render() {
+            // Entries
+            let html = entries.length ? entries.map((e, i) => `
+                <div class="entry">
+                    <div class="entry-info">
+                        <div class="entry-date">${new Date(e.date).toLocaleDateString('nl-NL', {weekday:'short',year:'numeric',month:'short',day:'numeric'})}</div>
+                        <div class="entry-time">⏱️ ${e.hours} uur</div>
+                        ${e.websites ? `<div>💻 ${e.websites}</div>` : ''}
+                        ${e.notes ? `<div style="color:#718096;font-style:italic;">📝 ${e.notes}</div>` : ''}
+                    </div>
+                    <button class="btn-danger" style="width:80px;" onclick="deleteEntry(${i})">✕</button>
                 </div>
-            `).join('');
+            `).join('') : '<div class="empty">Geen entries</div>';
+            document.getElementById('entries').innerHTML = html;
+
+            // Sources
+            html = sources.length ? sources.map((s, i) => `
+                <div style="background:#edf2f7;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
+                    <a href="${s.url}" target="_blank" style="color:#667eea;text-decoration:none;flex:1;">🔗 ${s.title}</a>
+                    <button class="btn-danger" style="width:50px;" onclick="deleteSource(${i})">✕</button>
+                </div>
+            `).join('') : '<div class="empty">Geen bronnen</div>';
+            document.getElementById('sources').innerHTML = html;
+
+            // Goal
+            const total = entries.reduce((s, e) => s + parseFloat(e.hours), 0);
+            const remaining = Math.max(0, GOAL - total);
+            const pct = Math.min(100, Math.round((total / GOAL) * 100));
+            document.getElementById('spent').textContent = total.toFixed(1);
+            document.getElementById('remaining').textContent = remaining.toFixed(1);
+            document.getElementById('percent').textContent = pct + '%';
+            document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur';
+            document.getElementById('fill').style.width = pct + '%';
         }
 
-        function saveSources() {
-            localStorage.setItem('urenSources', JSON.stringify(sources));
-        }
-
-        function loadSources() {
-            const saved = localStorage.getItem('urenSources');
-            sources = saved ? JSON.parse(saved) : [];
-        }
-
-        function showMessage(text, type) {
-            const container = document.getElementById('messageContainer');
-            const message = document.createElement('div');
-            message.className = `message ${type}`;
-            message.textContent = text;
-            container.innerHTML = '';
-            container.appendChild(message);
-
-            setTimeout(() => {
-                message.remove();
-            }, 3000);
-        }
-
-        function formatDate(dateString) {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateString + 'T00:00:00').toLocaleDateString('nl-NL', options);
-        }
-
-        function exportToExcel() {
-            if (entries.length === 0) {
-                showMessage('Geen entries om te exporteren', 'error');
-                return;
-            }
-
-            // Prepare data for Excel
-            const data = [
-                ['Datum', 'Uren', 'Websites', 'Aantekeningen']
-            ];
-
-            entries.forEach(entry => {
-                data.push([
-                    formatDate(entry.date),
-                    parseFloat(entry.hours),
-                    entry.websites,
-                    entry.notes
-                ]);
+        function downloadCSV() {
+            if (!entries.length) { msg('Geen entries', 'error'); return; }
+            let csv = 'Datum,Uren,Websites,Aantekeningen\n';
+            entries.forEach(e => {
+                csv += `"${new Date(e.date).toLocaleDateString('nl-NL')}",${e.hours},"${e.websites}","${e.notes}"\n`;
             });
-
-            // Add empty row and totals
-            const totalHours = entries.reduce((sum, entry) => sum + parseFloat(entry.hours), 0).toFixed(2);
-            data.push([]);
-            data.push(['Totaal Uren', parseFloat(totalHours)]);
-
-            // Create workbook and worksheet
-            const ws = XLSX.utils.aoa_to_sheet(data);
-
-            // Set column widths
-            ws['!cols'] = [
-                { wch: 20 },  // Datum
-                { wch: 12 },  // Uren
-                { wch: 30 },  // Websites
-                { wch: 40 }   // Aantekeningen
-            ];
-
-            // Add styling to header row
-            const headerStyle = {
-                font: { bold: true, color: { rgb: 'FFFFFF' } },
-                fill: { fgColor: { rgb: '667eea' } },
-                alignment: { horizontal: 'center', vertical: 'center' }
-            };
-
-            // Apply header styling
-            for (let i = 0; i < 4; i++) {
-                const cellRef = XLSX.utils.encode_col(i) + '1';
-                if (!ws[cellRef]) ws[cellRef] = {};
-                ws[cellRef].s = headerStyle;
-            }
-
-            // Style total row
-            const totalRowIndex = data.length;
-            const totalStyle = {
-                font: { bold: true },
-                fill: { fgColor: { rgb: 'f0f0f0' } },
-                alignment: { horizontal: 'right' }
-            };
-
-            for (let i = 0; i < 2; i++) {
-                const cellRef = XLSX.utils.encode_col(i) + totalRowIndex;
-                if (!ws[cellRef]) ws[cellRef] = {};
-                ws[cellRef].s = totalStyle;
-            }
-
-            // Create workbook
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Urenregistratie');
-
-            // Download
-            XLSX.writeFile(wb, `urenregistratie_${new Date().toISOString().split('T')[0]}.xlsx`);
-
-            showMessage('Excel bestand gedownload!', 'success');
+            const total = entries.reduce((s, e) => s + parseFloat(e.hours), 0);
+            csv += `\nTotaal,${total.toFixed(2)},,\n`;
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `urenregistratie_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            msg('Gedownload!', 'success');
         }
 
-        function clearAllEntries() {
-            if (confirm('Weet je zeker dat je ALLE entries wilt verwijderen? Dit kan niet ongedaan gemaakt worden!')) {
+        function clearAll() {
+            if (confirm('ALLES verwijderen?')) {
                 entries = [];
-                saveEntries();
-                renderEntries();
-                showMessage('Alle entries verwijderd', 'success');
+                save();
+                render();
+                msg('Verwijderd', 'success');
             }
+        }
+
+        function save() {
+            localStorage.setItem('e', JSON.stringify(entries));
+            localStorage.setItem('s', JSON.stringify(sources));
+        }
+
+        function load() {
+            entries = JSON.parse(localStorage.getItem('e') || '[]');
+            sources = JSON.parse(localStorage.getItem('s') || '[]');
+        }
+
+        function msg(text, type) {
+            const c = document.getElementById('messages');
+            const m = document.createElement('div');
+            m.className = `message ${type}`;
+            m.textContent = text;
+            c.innerHTML = '';
+            c.appendChild(m);
+            setTimeout(() => m.remove(), 3000);
         }
     </script>
 </body>
