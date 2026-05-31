@@ -36,40 +36,36 @@
         .message { padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         .message.success { background: #c6f6d5; color: #22543d; }
         .message.error { background: #fed7d7; color: #742a2a; }
+        .main-card { max-width: 640px; margin: 0 auto 24px; }
+        .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .duration-box { background: #f7fafc; padding: 18px; border-radius: 10px; text-align: center; font-size: 1.25em; font-weight: 600; color: #667eea; margin: 14px 0 22px; border: 1px solid #e2e8f0; }
+        .duration-box.error { color: #c53030; background: #fff5f5; border-color: #fed7d7; }
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
+        .onboarding-tip { background: rgba(255,255,255,0.18); color: white; padding: 14px 20px; border-radius: 12px; margin: 0 auto 22px; max-width: 640px; text-align: center; font-size: 0.95em; line-height: 1.45; }
+        .danger-link { display: inline-block; margin-top: 14px; color: #e53e3e; font-size: 0.9em; text-decoration: underline; cursor: pointer; background: none; border: none; width: auto; padding: 4px 8px; font-weight: normal; }
+        .danger-link:hover { color: #c53030; }
+        textarea#notesInput { min-height: 80px; resize: vertical; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header"><h1>&#x23F1;&#xFE0F; Urenregistratie</h1><p>Werktijden bijhouden</p></div>
-        <div class="content">
-            <div class="card">
-                <h2>Start- en Stoptijd</h2>
-                <label>Starttijd</label>
-                <input type="time" id="startTimeInput" oninput="window.updateDuration()">
-                <label>Stoptijd</label>
-                <input type="time" id="stopTimeInput" oninput="window.updateDuration()">
-                <div class="timer-display" id="durationDisplay" style="font-size:2em;">0:00</div>
+        <div id="onboardingTip"></div>
+        <div class="card main-card">
+            <h2>Werktijd toevoegen</h2>
+            <label>Datum</label>
+            <input type="date" id="dateInput">
+            <div class="time-row">
+                <div><label>Starttijd</label><input type="time" id="startTimeInput" oninput="window.updateDuration()"></div>
+                <div><label>Stoptijd</label><input type="time" id="stopTimeInput" oninput="window.updateDuration()"></div>
             </div>
-            <div class="card">
-                <h2>Werkgegevens</h2>
-                <label>Datum</label>
-                <input type="date" id="dateInput">
-                <label>Websites</label>
-                <input type="text" id="websitesInput" placeholder="Figma, Notion...">
-                <label>Aantekeningen</label>
-                <textarea id="notesInput" placeholder="Wat gedaan?"></textarea>
-                <button class="btn-primary" onclick="window.addEntry()">Opslaan</button>
-            </div>
-            <div class="card">
-                <h2>&#x1F4DA; Bronnen</h2>
-                <label>Titel</label>
-                <input type="text" id="sourceTitleInput" placeholder="Figma">
-                <label>URL</label>
-                <input type="text" id="sourceUrlInput" placeholder="https://...">
-                <button class="btn-primary" onclick="window.addSource()">Opslaan</button>
-                <hr style="margin:20px 0;border:none;border-top:1px solid #e2e8f0;">
-                <div id="sourcesList"></div>
-            </div>
+            <div class="duration-box" id="durationDisplay">Duur: &mdash;</div>
+            <label>Websites</label>
+            <input type="text" id="websitesInput" placeholder="Figma, Notion...">
+            <label>Aantekeningen</label>
+            <textarea id="notesInput" rows="3" placeholder="Wat heb je gedaan?"></textarea>
+            <button class="btn-success" onclick="window.addEntry()">Uren toevoegen</button>
         </div>
         <div class="goal-box">
             <h2>&#x1F3AF; 80 Uur Doelstelling</h2>
@@ -81,16 +77,28 @@
             <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             <div class="progress-text" id="progressText">0.0 / 80 uur</div>
         </div>
-        <div class="content" style="margin-top:20px;">
-            <div class="card full-width">
+        <div style="margin-top:20px;">
+            <div class="card">
                 <h2>Opgeslagen Entries</h2>
                 <div id="messageBox"></div>
                 <div id="entriesList"></div>
             </div>
-            <div class="card full-width" style="text-align:center;">
+        </div>
+        <div class="grid-2col" style="margin-top:20px;">
+            <div class="card">
+                <h2>&#x1F4DA; Bronnen</h2>
+                <label>Titel</label>
+                <input type="text" id="sourceTitleInput" placeholder="Figma">
+                <label>URL</label>
+                <input type="text" id="sourceUrlInput" placeholder="https://...">
+                <button class="btn-primary" onclick="window.addSource()">Bron toevoegen</button>
+                <hr style="margin:20px 0;border:none;border-top:1px solid #e2e8f0;">
+                <div id="sourcesList"></div>
+            </div>
+            <div class="card" style="text-align:center;">
                 <h2>Exporteren</h2>
                 <button class="btn-primary" onclick="window.downloadExcel()">&#x1F4CA; Download Excel</button>
-                <button class="btn-secondary" onclick="window.clearAll()">&#x1F5D1;&#xFE0F; Alles verwijderen</button>
+                <button type="button" class="danger-link" onclick="window.clearAll()">&#x1F5D1;&#xFE0F; Alles verwijderen</button>
             </div>
         </div>
     </div>
@@ -100,12 +108,12 @@
         const GOAL = 80;
         window.addEventListener('load', function() { document.getElementById('dateInput').valueAsDate = new Date(); loadData(); updateUI(); });
         function timeDiffMinutes(start, stop) { const sp = start.split(':').map(Number); const ep = stop.split(':').map(Number); const startMin = sp[0]*60 + sp[1]; const stopMin = ep[0]*60 + ep[1]; if (stopMin <= startMin) return null; return stopMin - startMin; }
-        window.updateDuration = function() { const start = document.getElementById('startTimeInput').value; const stop = document.getElementById('stopTimeInput').value; const disp = document.getElementById('durationDisplay'); if (!start || !stop) { disp.textContent = '0:00'; return; } const mins = timeDiffMinutes(start, stop); if (mins === null) { disp.textContent = 'fout'; return; } const h = Math.floor(mins / 60); const m = mins % 60; disp.textContent = h + ':' + String(m).padStart(2,'0'); };
-        window.addEntry = function() { const date = document.getElementById('dateInput').value; const start = document.getElementById('startTimeInput').value; const stop = document.getElementById('stopTimeInput').value; const websites = document.getElementById('websitesInput').value; const notes = document.getElementById('notesInput').value; if (!date) { showMessage('Voer datum in', 'error'); return; } if (!start || !stop) { showMessage('Vul start- en stoptijd in', 'error'); return; } const mins = timeDiffMinutes(start, stop); if (mins === null) { showMessage('Stoptijd moet na starttijd liggen', 'error'); return; } const hours = parseFloat((mins / 60).toFixed(2)); entries.push({ date, hours, websites, notes }); saveData(); updateUI(); document.getElementById('startTimeInput').value = ''; document.getElementById('stopTimeInput').value = ''; document.getElementById('websitesInput').value = ''; document.getElementById('notesInput').value = ''; document.getElementById('durationDisplay').textContent = '0:00'; showMessage('\u2705 ' + hours + ' uur opgeslagen!', 'success'); };
+        window.updateDuration = function() { const start = document.getElementById('startTimeInput').value; const stop = document.getElementById('stopTimeInput').value; const disp = document.getElementById('durationDisplay'); disp.classList.remove('error'); if (!start || !stop) { disp.innerHTML = 'Duur: &mdash;'; return; } const mins = timeDiffMinutes(start, stop); if (mins === null) { disp.classList.add('error'); disp.textContent = '\u26A0 Stoptijd is v\u00F3\u00F3r starttijd'; return; } const h = Math.floor(mins / 60); const m = mins % 60; const decimal = (mins/60).toFixed(2).replace('.', ','); disp.textContent = 'Duur: ' + h + ' uur ' + m + ' min (' + decimal + ' uur)'; };
+        window.addEntry = function() { const date = document.getElementById('dateInput').value; const start = document.getElementById('startTimeInput').value; const stop = document.getElementById('stopTimeInput').value; const websites = document.getElementById('websitesInput').value; const notes = document.getElementById('notesInput').value; if (!date) { showMessage('Voer datum in', 'error'); return; } if (!start || !stop) { showMessage('Vul start- en stoptijd in', 'error'); return; } const mins = timeDiffMinutes(start, stop); if (mins === null) { showMessage('Stoptijd moet na starttijd liggen', 'error'); return; } const hours = parseFloat((mins / 60).toFixed(2)); entries.push({ date, hours, websites, notes }); saveData(); updateUI(); document.getElementById('startTimeInput').value = ''; document.getElementById('stopTimeInput').value = ''; document.getElementById('websitesInput').value = ''; document.getElementById('notesInput').value = ''; const dispEl = document.getElementById('durationDisplay'); dispEl.classList.remove('error'); dispEl.innerHTML = 'Duur: &mdash;'; const total = entries.reduce((s, e) => s + e.hours, 0); const remaining = Math.max(0, GOAL - total); showMessage('\u2705 ' + hours.toFixed(2).replace('.', ',') + ' uur opgeslagen \u2014 nog ' + remaining.toFixed(1).replace('.', ',') + ' uur te gaan!', 'success'); };
         window.deleteEntry = function(index) { if (confirm('Verwijderen?')) { entries.splice(index, 1); saveData(); updateUI(); } };
         window.addSource = function() { const title = document.getElementById('sourceTitleInput').value; const url = document.getElementById('sourceUrlInput').value; if (!title || !url) { showMessage('Titel en URL nodig', 'error'); return; } sources.push({ title, url }); saveData(); updateUI(); document.getElementById('sourceTitleInput').value = ''; document.getElementById('sourceUrlInput').value = ''; showMessage('Opgeslagen!', 'success'); };
         window.deleteSource = function(index) { if (confirm('Verwijderen?')) { sources.splice(index, 1); saveData(); updateUI(); } };
-        function updateUI() { let html = entries.length ? entries.map((e, i) => '<div class="entry"><div class="entry-info"><div class="entry-date">' + new Date(e.date).toLocaleDateString('nl-NL', {weekday:'short',year:'numeric',month:'short',day:'numeric'}) + '</div><div class="entry-time">\u23F1\uFE0F ' + e.hours + ' uur</div>' + (e.websites ? '<div>\u{1F4BB} ' + e.websites + '</div>' : '') + (e.notes ? '<div style="color:#718096;font-style:italic;">\u{1F4DD} ' + e.notes + '</div>' : '') + '</div><button class="btn-danger" style="width:80px; margin:0;" onclick="window.deleteEntry(' + i + ')">\u2715</button></div>').join('') : '<div class="empty">Geen entries</div>'; document.getElementById('entriesList').innerHTML = html; html = sources.length ? sources.map((s, i) => '<div style="background:#edf2f7;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;"><a href="' + s.url + '" target="_blank" style="color:#667eea;text-decoration:none;flex:1;">\u{1F517} ' + s.title + '</a><button class="btn-danger" style="width:50px;margin:0;" onclick="window.deleteSource(' + i + ')">\u2715</button></div>').join('') : '<div class="empty">Geen bronnen</div>'; document.getElementById('sourcesList').innerHTML = html; const total = entries.reduce((sum, e) => sum + e.hours, 0); const remaining = Math.max(0, GOAL - total); const percent = total >= GOAL ? 100 : Math.round((total / GOAL) * 100); document.getElementById('spentValue').textContent = total.toFixed(1); document.getElementById('remainingValue').textContent = remaining.toFixed(1); document.getElementById('percentValue').textContent = percent + '%'; document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur'; document.getElementById('progressFill').style.width = percent + '%'; }
+        function updateUI() { const tip = document.getElementById('onboardingTip'); if (tip) { tip.innerHTML = entries.length ? '' : '<div class="onboarding-tip">\u{1F44B} Welkom! Vul je <b>start- en stoptijd</b> in, klik op <b>Uren toevoegen</b>, en je voortgang verschijnt hieronder.</div>'; } let html = entries.length ? entries.map((e, i) => '<div class="entry"><div class="entry-info"><div class="entry-date">' + new Date(e.date).toLocaleDateString('nl-NL', {weekday:'short',year:'numeric',month:'short',day:'numeric'}) + '</div><div class="entry-time">\u23F1\uFE0F ' + e.hours.toFixed(2).replace('.', ',') + ' uur</div>' + (e.websites ? '<div>\u{1F4BB} ' + e.websites + '</div>' : '') + (e.notes ? '<div style="color:#718096;font-style:italic;">\u{1F4DD} ' + e.notes + '</div>' : '') + '</div><button class="btn-danger" style="width:80px; margin:0;" onclick="window.deleteEntry(' + i + ')">\u2715</button></div>').join('') : '<div class="empty">Nog geen uren opgeslagen.</div>'; document.getElementById('entriesList').innerHTML = html; html = sources.length ? sources.map((s, i) => '<div style="background:#edf2f7;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;"><a href="' + s.url + '" target="_blank" style="color:#667eea;text-decoration:none;flex:1;">\u{1F517} ' + s.title + '</a><button class="btn-danger" style="width:50px;margin:0;" onclick="window.deleteSource(' + i + ')">\u2715</button></div>').join('') : '<div class="empty">Nog geen bronnen.</div>'; document.getElementById('sourcesList').innerHTML = html; const total = entries.reduce((sum, e) => sum + e.hours, 0); const remaining = Math.max(0, GOAL - total); const percent = total >= GOAL ? 100 : Math.round((total / GOAL) * 100); document.getElementById('spentValue').textContent = total.toFixed(1); document.getElementById('remainingValue').textContent = remaining.toFixed(1); document.getElementById('percentValue').textContent = percent + '%'; document.getElementById('progressText').textContent = total.toFixed(1) + ' / ' + GOAL + ' uur'; document.getElementById('progressFill').style.width = percent + '%'; }
         function buildStyledSheet(headers, rows, widths, boldLastRow, numFmts) {
             const aoa = [headers].concat(rows);
             const ws = XLSX.utils.aoa_to_sheet(aoa);
