@@ -47,6 +47,9 @@
         .danger-link:hover { color: #c53030; }
         textarea#notesInput { min-height: 80px; resize: vertical; }
         input, textarea, select, button { font-size: 16px; }
+        input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; background: white; color: #2d3748; font-family: inherit; min-height: 44px; }
+        input[type="date"]::-webkit-date-and-time-value, input[type="time"]::-webkit-date-and-time-value { text-align: left; }
+        input[type="time"]::-webkit-date-and-time-value { text-align: center; }
         @media (max-width: 600px) {
             body { padding: 8px; }
             .header { margin-bottom: 18px; }
