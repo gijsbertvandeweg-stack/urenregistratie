@@ -43,10 +43,12 @@
         <div class="header"><h1>&#x23F1;&#xFE0F; Urenregistratie</h1><p>Werktijden bijhouden</p></div>
         <div class="content">
             <div class="card">
-                <h2>Start/Stop Timer</h2>
-                <div class="timer-display" id="timerDisplay">00:00:00</div>
-                <button class="btn-success" id="startBtn" onclick="window.startTimer()">&#x25B6; Start</button>
-                <button class="btn-danger" id="stopBtn" style="display:none;" onclick="window.stopTimer()">&#x23F9; Stop</button>
+                <h2>Start- en Stoptijd</h2>
+                <label>Starttijd</label>
+                <input type="time" id="startTimeInput" oninput="window.updateDuration()">
+                <label>Stoptijd</label>
+                <input type="time" id="stopTimeInput" oninput="window.updateDuration()">
+                <div class="timer-display" id="durationDisplay" style="font-size:2em;">0:00</div>
             </div>
             <div class="card">
                 <h2>Werkgegevens</h2>
@@ -93,16 +95,13 @@
         </div>
     </div>
     <script>
-        let timerValue = 0;
-        let timerInterval = null;
         let entries = [];
         let sources = [];
         const GOAL = 80;
         window.addEventListener('load', function() { document.getElementById('dateInput').valueAsDate = new Date(); loadData(); updateUI(); });
-        window.startTimer = function() { timerValue = 0; document.getElementById('startBtn').style.display = 'none'; document.getElementById('stopBtn').style.display = 'block'; timerInterval = setInterval(function() { timerValue++; updateTimerDisplay(); }, 1000); };
-        window.stopTimer = function() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } document.getElementById('startBtn').style.display = 'block'; document.getElementById('stopBtn').style.display = 'none'; };
-        function updateTimerDisplay() { const h = Math.floor(timerValue / 3600); const m = Math.floor((timerValue % 3600) / 60); const s = timerValue % 60; document.getElementById('timerDisplay').textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
-        window.addEntry = function() { const date = document.getElementById('dateInput').value; const websites = document.getElementById('websitesInput').value; const notes = document.getElementById('notesInput').value; if (!date) { showMessage('Voer datum in', 'error'); return; } if (timerValue === 0) { showMessage('Start de timer eerst', 'error'); return; } const hours = parseFloat((timerValue / 3600).toFixed(2)); entries.push({ date, hours, websites, notes }); saveData(); updateUI(); timerValue = 0; document.getElementById('timerDisplay').textContent = '00:00:00'; document.getElementById('websitesInput').value = ''; document.getElementById('notesInput').value = ''; document.getElementById('startBtn').style.display = 'block'; document.getElementById('stopBtn').style.display = 'none'; showMessage('\u2705 ' + hours + ' uur opgeslagen!', 'success'); };
+        function timeDiffMinutes(start, stop) { const sp = start.split(':').map(Number); const ep = stop.split(':').map(Number); const startMin = sp[0]*60 + sp[1]; const stopMin = ep[0]*60 + ep[1]; if (stopMin <= startMin) return null; return stopMin - startMin; }
+        window.updateDuration = function() { const start = document.getElementById('startTimeInput').value; const stop = document.getElementById('stopTimeInput').value; const disp = document.getElementById('durationDisplay'); if (!start || !stop) { disp.textContent = '0:00'; return; } const mins = timeDiffMinutes(start, stop); if (mins === null) { disp.textContent = 'fout'; return; } const h = Math.floor(mins / 60); const m = mins % 60; disp.textContent = h + ':' + String(m).padStart(2,'0'); };
+        window.addEntry = function() { const date = document.getElementById('dateInput').value; const start = document.getElementById('startTimeInput').value; const stop = document.getElementById('stopTimeInput').value; const websites = document.getElementById('websitesInput').value; const notes = document.getElementById('notesInput').value; if (!date) { showMessage('Voer datum in', 'error'); return; } if (!start || !stop) { showMessage('Vul start- en stoptijd in', 'error'); return; } const mins = timeDiffMinutes(start, stop); if (mins === null) { showMessage('Stoptijd moet na starttijd liggen', 'error'); return; } const hours = parseFloat((mins / 60).toFixed(2)); entries.push({ date, hours, websites, notes }); saveData(); updateUI(); document.getElementById('startTimeInput').value = ''; document.getElementById('stopTimeInput').value = ''; document.getElementById('websitesInput').value = ''; document.getElementById('notesInput').value = ''; document.getElementById('durationDisplay').textContent = '0:00'; showMessage('\u2705 ' + hours + ' uur opgeslagen!', 'success'); };
         window.deleteEntry = function(index) { if (confirm('Verwijderen?')) { entries.splice(index, 1); saveData(); updateUI(); } };
         window.addSource = function() { const title = document.getElementById('sourceTitleInput').value; const url = document.getElementById('sourceUrlInput').value; if (!title || !url) { showMessage('Titel en URL nodig', 'error'); return; } sources.push({ title, url }); saveData(); updateUI(); document.getElementById('sourceTitleInput').value = ''; document.getElementById('sourceUrlInput').value = ''; showMessage('Opgeslagen!', 'success'); };
         window.deleteSource = function(index) { if (confirm('Verwijderen?')) { sources.splice(index, 1); saveData(); updateUI(); } };
